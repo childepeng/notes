@@ -1,0 +1,5 @@
+.idea
+*.iml
+.svn
+target
+node_modules
