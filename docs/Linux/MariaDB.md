@@ -1,9 +1,3 @@
-title: yum安装MariaDB
-date: 2017-09-28 10:39
-categories: Linux
-tags: [yum, MariaDB]
----
-
 # yum安装MariaDB
 1. 创建MariaDB.repo文件
 ```

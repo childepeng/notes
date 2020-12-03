@@ -1,9 +1,3 @@
-title: Java相似度算法
-date: 2017-8-18 18:42:00
-tags: 相似度算法
-categories: [Java,算法]
----
-
 # 编辑距离算法（Edit distance）
 编辑距离算法也叫Levenshtein distance，原理就是计算一个字符串转换为另一个字符串的编辑次数，编辑操作包括删除、插入、替换；编辑次数越小，相似度越高。
 编辑距离可通过矩阵算出来，具体推算过程如下：
@@ -12,7 +6,7 @@ categories: [Java,算法]
     * 如果：j==0，则：S[i, 0]=i;
     * 如果：i>0 且 j>0，则：S[i, j]=min( S[i-1,j]+1, S[i,j-1]+1, S[i-1,j-1]+X );  min表示取最小值，X值参考下一条规则
     * 如果：S1[i]==S2[j]，则：X=0；否则：X=1 
-    ![](similarity/editdistance.png)
+    ![](http://static.laop.cc/images/editdistance.png)
 2. 根据规则，矩阵最后一个值为 S1 -> S2的编辑距离。
 3. 相似度：similaryDegree = 1 - edts / Math.max(s1.length(), s2.length());
 
@@ -65,10 +59,11 @@ Java实现如下
 # 最长公共子序列
 通过计算两个段文本中最长公共子序列长度判断相似度。比如：abcdef与poicdeg的公共子序列为cde，长度为3。
 算法可通过矩阵实现，矩阵推导过程如下：
+
 1. 根据两段文本构建矩阵，比如：S1="abcdefg", S2="thjabcfg"，矩阵S[S1.length, S2.length]
     * 如果：S1[i]!=S2[j]，则：S[i,j]=0
     * 如果：S1[i]==S2[j]，则：S[i,j]=S[i-1,j-1]+1
-    ![](similarity/lcs.png)
+    ![](http://static.laop.cc/images/lcs.png)
 2. 矩阵中最大值为最长公共子序列长度。
 3. 相似度：similaryDegree = commonLength / Math.max(s1.length(), s2.length());
 
@@ -121,7 +116,7 @@ Java实现如下
 - 根据余弦公式，计算余弦，值越小，相似度越低，当等于1时，表示相等
 
 余弦公式：
-![](similarity/cosine.png)
+![](http://static.laop.cc/images/cosine.png)
 
 ```
     public static double cosineSimilary(String source, String target) {
