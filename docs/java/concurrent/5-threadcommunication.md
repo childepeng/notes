@@ -7,7 +7,7 @@ notify: 线程唤醒一条在该对象上进入等待最久的线程；
 notifyAll: 唤醒所有在该对象上等待的线程。
 这三个方法在执行之前线程必须先获取对象锁，所以必须放在synchronized代码块中执行。
 
-```
+```java
 public class ThreadCommunication {
 
     private Entity entity = new Entity();
@@ -49,7 +49,7 @@ public class ThreadCommunication {
 
 ## Exchanger
 Exchanger类在java.util.concurrent包下，在多线程环境中用于线程间的数据交换。
-```
+```java
 public class ExchangerTest {
 
     private static Exchanger<String> changer = new Exchanger<>();

@@ -11,7 +11,7 @@
 3. 相似度：similaryDegree = 1 - edts / Math.max(s1.length(), s2.length());
 
 Java实现如下
-```
+```java
     /**
      * 编辑距离算法，一个字符串转换为另一个字符串最少的编辑次数，编辑包括字符插入、删除、替换
      *
@@ -68,7 +68,7 @@ Java实现如下
 3. 相似度：similaryDegree = commonLength / Math.max(s1.length(), s2.length());
 
 Java实现如下
-```
+```java
     /**
      * 最长公共序列长度
      *
@@ -118,7 +118,7 @@ Java实现如下
 余弦公式：
 ![](http://static.laop.cc/images/cosine.png)
 
-```
+```java
     public static double cosineSimilary(String source, String target) {
         //创建向量空间模型，使用map实现，主键为词项，值为长度为2的数组，
         //存放着对应词项在字符串中的出现次数

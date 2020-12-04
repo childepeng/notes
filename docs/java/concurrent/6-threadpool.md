@@ -29,6 +29,22 @@ Java中线程池的接口是ExecutorService，比较重要的几个实现类如�
 6. threadFactory：接口，线程工厂，提供线程创建的功能
 7. RejectedExecutionHandler：接口，新添加的任务被拒绝之后的处理方式，会调用rejectedExecution方法；
 
+### workQueue(BlockingQueue) 选择说明
+
+workQueue 类型是 BlockingQueue ，常用可选队列有： SynchronousQueue, LinkedBlockingDeque, ArrayBlockingQueue
+
+1.  `SynchronousQueue`
+
+   不缓存任何元素的阻塞队列，每次插入操作都会阻塞等待另一个线程执行移除操作；移除操作同样会阻塞等待其他线程进行插入数据；类似生产者和消费者是直接进行交易，缺少任何一方，另一方都需要进行等待；静态工厂方法`Executors.newCachedThreadPool` 创建线程池就使用的这种队列；
+
+2. `LinkedBlockingDeque`
+
+   基于链表结构的有界阻塞队列，创建可以指定长度，不指定长度的时候默认长度为 `Integer.MAX_VALUE` (2^31 - 1)
+
+3. `ArrayBlockingQueue`
+
+   基于数组结构的有界阻塞队列，创建时需要指定队列长度；
+
 ## Executors
 通常情况下，不需要使用ThreadPoolExecutor来创建线程池，Java中提供了工具类可通过简单的参数创建不同特性的线程池：Executors，比如：
 1. Executors.newFixedThreadPool(int nthreads): 创建固定大小的线程池，核心线程数与最大线程是相同，采用无界队列；超过核心线程的空闲线程立即回收

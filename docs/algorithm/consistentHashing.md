@@ -2,7 +2,9 @@
 一致性哈希算法是分布式系统中常用的算法。比如在分布式缓存系统中，要将数据缓存到各个节点中，如果采用普通的hash算法，节点索引index = key.hashCode() % n，n为节点数量，当需要增加或者删除节点时，服务器上原有的缓存数据将全部失效。
 
 一致性哈希算法将节点映射到一个封闭的哈希环上，采用哈希算法将需要查找或存储的数据映射到哈希环上，然后通过顺时针方向找到最近的节点。如图，蓝色为服务器节点，绿色为需要查找或存储的数据
+
 ![](http://static.laop.cc/images/1.png)
+
 当需要增加或者减少服务器节点的时候，其他节点在环上的位置不变，只有少部分的缓存数据发生了变化（NodeD与NodeE之间的数据，之前映射到NodeA，之后映射到NodeE），如图
 ![](http://static.laop.cc/images/2.png)
 
@@ -10,7 +12,7 @@
 ![](http://static.laop.cc/images/3.png)
 
 # Java实现
-```
+```java
 package cc.laop.algorithm.hash;
 
 import java.nio.ByteBuffer;

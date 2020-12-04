@@ -1,6 +1,6 @@
 # Semaphore信号量
 在操作系统中，信号量是个很重要的概念，操作系统通过信号量控制可同时访问某些共享资源的程序数量。在Java中同样有信号量控制机制，就是Semaphore；Semaphore可控制同时使用某些资源的线程数量。比如，通过互斥锁（synchronized），可以保证某段代码同时仅允许一条线程执行，Semaphore可允许指定数量的线程访问资源。
-```
+```java
 // 初始化，并设置信号量
 Semaphore sph = new Semaphore(5);
 

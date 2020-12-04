@@ -4,12 +4,12 @@ Java中的锁分为互斥锁和读写锁，互斥锁有分为内置锁和显示�
 ## synchronized
 synchronized实现的是内置锁，它是Java的一个关键字，获取锁和释放锁的操作对开发者是不可见的；synchronized代码块执行结束或者出现异常，锁会自动释放。
 synchronized常有两种用法：
-```
+```java
 synchronized (object) {
     ...
 }
 ```
-```
+```java
 public synchronized void method() {
     ...
 }
@@ -18,15 +18,16 @@ public synchronized void method() {
 线程在等待对象锁的过程是不可中断的。
 
 ## Lock & ReentrantLock
-Lock是显示锁，通过调用方法lock()和unlock()来获取锁和释放锁，通过lock()获取的锁只能通过unlock()释放，否则可能发生死锁。
-Lock是java.util.concurrent.locks下的接口，该接口主要有以下几个方法：
-lock()： 获取当前lock对象的锁；如果锁已被其他线程获取，则进入等待，并且不可中断；
-tryLock()：尝试获取当前lock对象的锁，并立即返回，如果获取成功返回true，否则返回false；
-tryLock(long time, TimeUnit unit)：方法同tryLock()，只是当lock对象锁被其他线程获取后，会进入等待，并在指定时间内返回锁的获取结果；
-lockInterruptibly()：方法同lock()，只是在线程等待过程可被中断
-unlock()：释放当前lock对象锁
-为了防止死锁，lock通常在try-catch-finally中使用：
-```
+`Lock`是显示锁，通过调用方法lock()和unlock()来获取锁和释放锁，通过lock()获取的锁只能通过unlock()释放，否则可能发生死锁。
+`Lock`是`java.util.concurrent.locks`下的接口，该接口主要有以下几个方法：
+`lock()`： 获取当前lock对象的锁；如果锁已被其他线程获取，则进入等待，并且不可中断；
+`tryLock()`：尝试获取当前lock对象的锁，并立即返回，如果获取成功返回true，否则返回false；
+`tryLock(long time, TimeUnit unit)`：方法同tryLock()，只是当lock对象锁被其他线程获取后，会进入等待，并在指定时间内返回锁的获取结果；
+`lockInterruptibly()`：方法同lock()，只是在线程等待过程可被中断
+`unlock()`：释放当前lock对象锁
+为了防止死锁，lock通常在 `try-catch-finally` 中使用：
+
+```java
 try {
     lock.lock();
     ...
@@ -38,17 +39,18 @@ try {
 ReentrantLock是其实现类
 
 ## ReadWriteLock & ReentrantReadWriteLock
-ReadWriteLock是java.util.concurrent.locks包下的接口，实现读写锁；
-readLock(): 获取读锁，读锁允许多线程同时进入执行，如果当前写入锁被其他线程获取，获取读锁的线程将进入等待；
-writeLock(): 获取写锁，不允许多线程同时进入执行，如果当前读锁或者写锁被其他线程获取，获取写锁将进入等待；
+`ReadWriteLock` 是 `java.util.concurrent.locks` 包下的接口，实现读写锁；
+`readLock()`:  获取读锁，读锁允许多线程同时进入执行，如果当前写入锁被其他线程获取，获取读锁的线程将进入等待；
+`writeLock()` : 获取写锁，不允许多线程同时进入执行，如果当前读锁或者写锁被其他线程获取，获取写锁将进入等待；
 通过这两个方法，防止在多线程的场景下同时执行对文件的读写操作。
 
 ## 公平锁 & 非公平锁
 公平锁是尽量以请求锁的顺序获取锁，也就是说等待时间最久的将优先获取锁。
 非公平锁是无法保证锁的获取按照顺序进行。
-synchronized时非公平锁；ReentrantLock和ReentrantReadWriteLock默认为非公平锁，当可设置为公平锁。
+`synchronized`是非公平锁；`ReentrantLock` 和 `ReentrantReadWriteLock` 默认也是非公平锁，当可设置为公平锁。
 比如：ReentrantLock
-```
+
+```java
     ...
     /**
      * Sync object for non-fair locks

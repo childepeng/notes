@@ -1,7 +1,11 @@
-# CountDownLatch 
+# 线程控制
+
+## CountDownLatch 
+
 CountDownLatch类位于java.util.concurrent包下，它类似一个线程计数器。
 比如学生考试的场景：当所有的学生都做完了，老师才开始收试卷。
-```
+
+```java
     public static CountDownLatch cdl;
 
     public static class Student extends Thread {
@@ -40,10 +44,12 @@ CountDownLatch类位于java.util.concurrent包下，它类似一个线程计数�
 
 ```
 
-# CyclicBarrier 
+## CyclicBarrier 
+
 CyclicBarrier类同样位于java.util.concurrent包下，它强制多条线程都达到某一状态之后才继续往下执行。
 比如考试的场景：当所有的学生都考完之后才能离开考场。
-```
+
+```java
 public class CyclicBarrierTest {
 
     public static class Student extends Thread {
@@ -78,10 +84,12 @@ public class CyclicBarrierTest {
 }
 ```
 
-# Phaser
-Phaser类位于java.util.concurrent包下，实现的是一个线程阶段器，功能类似于CyclicBarrier，不同的是Phaser强制线程阶段性同步执行。
+## Phaser
+
+Phaser 类位于 java.util.concurrent 包下，实现的是一个线程阶段器，功能类似于CyclicBarrier，不同的是Phaser强制线程阶段性同步执行。
 比如仍然是考试的场景：总共若干道题，只有所有的人都答完某题之后才能进入下一题的解答。
-```
+
+```java
 public class PhaserTest {
 
     public static class Student extends Thread {
