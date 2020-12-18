@@ -30,7 +30,7 @@ tar xvf hadoop-2.10.1.tar.gz
    export PATH=$PATH:$JAVA_HOME/bin
    
    # 配置Hadoop环境变量
-   export HADOOP_HOME=/home/hadoop-2.10.1
+   export HADOOP_HOME=/home/hadoop/hadoop-2.10.1
    export HADOOP_PREFIX=$HADOOP_HOME
    export HADOOP_MAPRED_HOME=$HADOOP_HOME
    export HADOOP_COMMON_HOME=$HADOOP_HOME
@@ -65,7 +65,7 @@ tar xvf hadoop-2.10.1.tar.gz
    <!-- 临时目录 -->
    <property>
    	<name>hadoop.tmp.dir</name>
-       <value>/home/peng/hadoop/hadoop-2.10.1/tmp</value>
+       <value>/home/hadoop/hadoop-2.10.1/tmp</value>
    </property>
    ```
 
@@ -80,12 +80,12 @@ tar xvf hadoop-2.10.1.tar.gz
    <!-- namenode数据目录 -->
    <property>
        <name>dfs.namenode.name.dir</name>
-       <value>/home/peng/dev/hadoop/hadoop-2.10.1/namenode</value>
+       <value>/home/hadoop/hadoop-2.10.1/namenode</value>
    </property>
    <!-- datanode数据目录 -->
    <property>
        <name>dfs.datanode.name.dir</name>
-       <value>/home/peng/hadoop/hadoop-2.10.1/datanode</value>
+       <value>/home/hadoop/hadoop-2.10.1/datanode</value>
    </property>
    <property>
        <name>dfs.permissions</name>
@@ -140,11 +140,13 @@ tar xvf hadoop-2.10.1.tar.gz
 
 至少准备3台机器或者容器实例；IP和hostname按如下设置
 
-> 172.18.0.11	hdp01
->
-> 172.18.0.12	hdp02
->
-> 172.18.0.13	hdp03
+```
+172.18.0.11	hdp01
+172.18.0.12	hdp02
+172.18.0.13	hdp03
+```
+
+基础配置
 
 1. 修改hostname
 
@@ -161,7 +163,27 @@ tar xvf hadoop-2.10.1.tar.gz
 
 3. 设置免密登录
 
-   略
+   ```bash
+   # 1 安装ssh服务（已安装的跳过）
+   yum install openssh-server openssh-clients
+   
+   # 2 创建密钥对，并将公钥复制到远程主机
+   ssh-keygen -t rsa -C "peng@laop.cc"
+   cat /root/.ssh/id_rsa.pub > /root/.ssh/authorized_keys
+   ssh-copy-id -p 22 root@hostname[ip]
+   
+   # 3 修改远程主机ssh配置（/etc/ssh/sshd_config）
+    RSAAuthentication yes
+    PubkeyAuthentication yes
+    AuthorizedKeysFile      .ssh/authorized_keys
+   
+   /usr/sbin/sshd reload
+   
+   # 4 测试
+   ssh root@hostname[ip]
+   ```
+   
+   
    
 4. 配置环境变量
 

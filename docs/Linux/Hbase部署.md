@@ -62,6 +62,7 @@ hbase部署官网： [https://hbase.apache.org/](https://hbase.apache.org/)
      <property>
         <name>hbase.rootdir</name>
         <value>file:///home/aisys/hbase/data-2.2.6</value>
+        <!-- <value>hdfs://172.18.0.11:9000/hbase</value> -->
      </property>
    
      <!-- hbase集群模式，false表示单机模式，true表示集群模式 -->
@@ -80,6 +81,59 @@ hbase部署官网： [https://hbase.apache.org/](https://hbase.apache.org/)
    ```
 
 ## 集群部署
+
+环境配置
+
+1. 准备3台机器或者实例，IP和hostname分别如下
+
+   ```
+   172.18.0.21 hbase01
+   172.18.0.22 hbase02
+   172.18.0.23 hbase03
+   ```
+
+2. 环境变量配置
+
+   ```shell
+   export HBASE_HOME=/home/hbase-2.2.6/
+   export PATH=$PATH:$HBASE_HOME/bin
+   ```
+
+3. 配置SSH
+
+   略
+
+配置文件
+
+**hbase-env.sh** 
+
+```shell
+export HBASE_MANAGES_ZK=false
+```
+
+**hbase-site.xml**
+
+```xml
+  <!-- hbase集群模式，false表示单机模式，true表示集群模式 -->
+  <property>
+     <name>hbase.cluster.distributed</name>
+     <value>true</value>
+  </property>
+```
+
+**regionservers**
+
+```
+172.18.0.21
+172.18.0.22
+172.18.0.23
+```
+
+
+
+
+
+
 
 
 
