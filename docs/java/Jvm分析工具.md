@@ -1,4 +1,4 @@
-# bJVM分析工具
+# JVM分析工具
 
 ## jps
 
@@ -263,9 +263,16 @@ Usage:  jhat [-stack <bool>] [-refs <bool>] [-port <port>] [-baseline <file>] [-
 
 ```
 
+用例
+
+```bash
+$ jhat javaheap.hprof
+# 分析完成之后，查看报告：http://localhost:7000
+```
+
 ## jstack
 
-jvm 线程分析工具，可以生成当前时刻的线程快照；线程快照是当前java虚拟机内每一条线程正在执行的方法堆栈的集合，生成线程快照的主要目的是定位线程出现长时间停顿的原因，如线程间死锁、死循环、请求外部资源导致的长时间等待等。 线程出现停顿的时候通过jstack来查看各个线程的调用堆栈，就可以知道没有响应的线程到底在后台做什么事情，或者等待什么资源。 如果java程序崩溃生成core文件，jstack工具可以用来获得core文件的java stack和native stack的信息，从而可以轻松地知道java程序是如何崩溃和在程序何处发生问题。另外，jstack工具还可以附属到正在运行的java程序中，看到当时运行的java程序的java stack和native stack的信息, 如果现在运行的java程序呈现hung的状态，jstack是非常有用的。
+jvm 线程分析工具，可以生成当前时刻的线程快照；线程快照是当前java虚拟机内每一条线程正在执行的方法堆栈的集合，生成线程快照的主要目的是定位线程出现长时间停顿的原因，如线程间死锁、死循环、请求外部资源导致的长时间等待等。 线程出现停顿的时候通过jstack来查看各个线程的调用堆栈，就可以知道没有响应的线程到底在后台做什么事情，或者等待什么资源。 如果java程序崩溃生成core文件，jstack工具可以用来获得core文件的java stack和native stack的信息，从而可以轻松地知道java程序是如何崩溃和在程序何处发生问题。另外，jstack工具还可以附属到正在运行的java程序中，看到当时运行的java程序的java stack和native stack的信息。
 
 ```bash
 $ jstack
@@ -294,13 +301,295 @@ $ jstack 10584 > thread_dump.txt
 # 生成线程快照，并输出到文件中
 ```
 
+线程堆栈分析说明
 
+### 线程堆栈解读
+
+比如如下一段代码：
+
+```java
+public class ThreadTest {
+    private static synchronized void fun() {
+        while (true) {
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    public static void main(String[] args) throws IOException {
+        new Thread(() -> fun(), "T1").start();
+        new Thread(() -> fun(), "T2").start();
+        System.in.read();
+    }
+}
+```
+
+以下是提取的部分线程信息
+
+```
+2021-01-05 16:42:31
+Full thread dump Java HotSpot(TM) 64-Bit Server VM (25.251-b08 mixed mode):
+
+"T2" #12 prio=5 os_prio=0 tid=0x000000001e317000 nid=0x316c waiting for monitor entry [0x000000001ed5f000]
+   java.lang.Thread.State: BLOCKED (on object monitor)
+	at cc.laop.jvm.ThreadTest.fun(ThreadTest.java:15)
+	- waiting to lock <0x000000076b59f0a0> (a java.lang.Class for cc.laop.jvm.ThreadTest)
+	at cc.laop.jvm.ThreadTest.lambda$main$1(ThreadTest.java:24)
+	at cc.laop.jvm.ThreadTest$$Lambda$2/1078694789.run(Unknown Source)
+	at java.lang.Thread.run(Thread.java:748)
+
+"T1" #11 prio=5 os_prio=0 tid=0x000000001e312000 nid=0x4790 waiting on condition [0x000000001ec5e000]
+   java.lang.Thread.State: TIMED_WAITING (sleeping)
+	at java.lang.Thread.sleep(Native Method)
+	at cc.laop.jvm.ThreadTest.fun(ThreadTest.java:15)
+	- locked <0x000000076b59f0a0> (a java.lang.Class for cc.laop.jvm.ThreadTest)
+	at cc.laop.jvm.ThreadTest.lambda$main$0(ThreadTest.java:23)
+	at cc.laop.jvm.ThreadTest$$Lambda$1/1324119927.run(Unknown Source)
+	at java.lang.Thread.run(Thread.java:748)
+
+"Service Thread" #10 daemon prio=9 os_prio=0 tid=0x000000001e04f800 nid=0x240c runnable [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"C1 CompilerThread2" #9 daemon prio=9 os_prio=2 tid=0x000000001dfbc800 nid=0x4514 waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"C2 CompilerThread1" #8 daemon prio=9 os_prio=2 tid=0x000000001dfab000 nid=0x2b5c waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"C2 CompilerThread0" #7 daemon prio=9 os_prio=2 tid=0x000000001dfa3800 nid=0x4fb0 waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Monitor Ctrl-Break" #6 daemon prio=5 os_prio=0 tid=0x000000001dfa2000 nid=0x446c runnable [0x000000001e65e000]
+   java.lang.Thread.State: RUNNABLE
+	at java.net.SocketInputStream.socketRead0(Native Method)
+	at java.net.SocketInputStream.socketRead(SocketInputStream.java:116)
+	at java.net.SocketInputStream.read(SocketInputStream.java:171)
+	at java.net.SocketInputStream.read(SocketInputStream.java:141)
+	at sun.nio.cs.StreamDecoder.readBytes(StreamDecoder.java:284)
+	at sun.nio.cs.StreamDecoder.implRead(StreamDecoder.java:326)
+	at sun.nio.cs.StreamDecoder.read(StreamDecoder.java:178)
+	- locked <0x000000076b487540> (a java.io.InputStreamReader)
+	at java.io.InputStreamReader.read(InputStreamReader.java:184)
+	at java.io.BufferedReader.fill(BufferedReader.java:161)
+	at java.io.BufferedReader.readLine(BufferedReader.java:324)
+	- locked <0x000000076b487540> (a java.io.InputStreamReader)
+	at java.io.BufferedReader.readLine(BufferedReader.java:389)
+	at com.intellij.rt.execution.application.AppMainV2$1.run(AppMainV2.java:64)
+
+"Attach Listener" #5 daemon prio=5 os_prio=2 tid=0x000000001cbb0000 nid=0x2e1c waiting on condition [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Signal Dispatcher" #4 daemon prio=9 os_prio=2 tid=0x000000001df68800 nid=0x4534 runnable [0x0000000000000000]
+   java.lang.Thread.State: RUNNABLE
+
+"Finalizer" #3 daemon prio=8 os_prio=1 tid=0x00000000035ac000 nid=0x46c8 in Object.wait() [0x000000001deff000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	- waiting on <0x000000076b308ee0> (a java.lang.ref.ReferenceQueue$Lock)
+	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:144)
+	- locked <0x000000076b308ee0> (a java.lang.ref.ReferenceQueue$Lock)
+	at java.lang.ref.ReferenceQueue.remove(ReferenceQueue.java:165)
+	at java.lang.ref.Finalizer$FinalizerThread.run(Finalizer.java:216)
+
+"Reference Handler" #2 daemon prio=10 os_prio=2 tid=0x00000000035a3000 nid=0x4f2c in Object.wait() [0x000000001ddff000]
+   java.lang.Thread.State: WAITING (on object monitor)
+	at java.lang.Object.wait(Native Method)
+	- waiting on <0x000000076b306c00> (a java.lang.ref.Reference$Lock)
+	at java.lang.Object.wait(Object.java:502)
+	at java.lang.ref.Reference.tryHandlePending(Reference.java:191)
+	- locked <0x000000076b306c00> (a java.lang.ref.Reference$Lock)
+	at java.lang.ref.Reference$ReferenceHandler.run(Reference.java:153)
+
+"main" #1 prio=5 os_prio=0 tid=0x00000000034b3800 nid=0x4ff0 runnable [0x000000000338f000]
+   java.lang.Thread.State: RUNNABLE
+	at java.io.FileInputStream.readBytes(Native Method)
+	at java.io.FileInputStream.read(FileInputStream.java:255)
+	at java.io.BufferedInputStream.fill(BufferedInputStream.java:246)
+	at java.io.BufferedInputStream.read(BufferedInputStream.java:265)
+	- locked <0x000000076b35ad10> (a java.io.BufferedInputStream)
+	at cc.laop.jvm.ThreadTest.main(ThreadTest.java:25)
+
+"VM Thread" os_prio=2 tid=0x000000001cb67800 nid=0x3fbc runnable 
+
+"GC task thread#0 (ParallelGC)" os_prio=0 tid=0x00000000034c8800 nid=0x4f40 runnable 
+
+"GC task thread#1 (ParallelGC)" os_prio=0 tid=0x00000000034ca800 nid=0x3180 runnable 
+
+"GC task thread#2 (ParallelGC)" os_prio=0 tid=0x00000000034cc000 nid=0x2424 runnable 
+
+"GC task thread#3 (ParallelGC)" os_prio=0 tid=0x00000000034ce800 nid=0x2b84 runnable 
+
+"VM Periodic Task Thread" os_prio=2 tid=0x000000001e050000 nid=0x453c waiting on condition 
+
+JNI global references: 317
+
+
+```
+
+以上信息，每一段代表一条线程，其中包括用户创建的线程，也有像GC线程这样的虚拟机创建的线程；
+
+第一行表示线程状态信息； 
+
+`at ...` 信息表示线程当前运行的方法栈，第一条表示当前正在运行的方法；
+
+`java.lang.Thread.State: RUNNABLE` 表示线程状态；
+
+```
+"NettyServerWorker-3-2"		// 线程名称
+#111 						// 编号
+daemon 						// 线程运行方式， daemon
+prio=5 						// 线程优先级
+os_prio=0 					// 内核线程优先级
+tid=0x00000000236cd000 		// 线程ID(jvm虚拟机)
+nid=0x3334 					// 线程ID(系统)，16进制表示
+runnable 					// 线程状态
+[0x000000002f5ae000]		// 线程内存地址
+```
+
+线程状态：
+
+> New	新建Thread
+>
+> Runnable	运行状态
+>
+> Waitting		无限等待状态，线程状态不会自动切换，需要其他线程唤醒，比如，线程调用了方法 wait() ；
+>
+> Timed Waitting	有限时间的等待，虚拟机会自动在一段时间之后，唤醒线程，比如，线程调用wait(timeout)指定等待时间；
+>
+> Block	阻塞状态，线程获取已被其他线程持有的对象锁，会进入阻塞状态，比如 在进入 Synchronized 代码块的时候；
+>
+> Terminated	线程运行结束；
+
+
+
+上面的堆栈信息
+
+第7行表示线程等待获取对象的锁，对象内存地址 `0x000000076b59f0a0` , 对象类型 `ThreadTest` ，由于线程当前在等待获得对象锁进入Synchronized代码块，因此此时线程状态为 `BLOCKED`
+
+```
+- waiting to lock <0x000000076b59f0a0> (a java.lang.Class for cc.laop.jvm.ThreadTest)
+```
+
+第16行表示当前线程持有对象的锁，对象地址 `0x000000076b59f0a0` ，类型 `ThreadTest`，由于执行了 sleep 方法，线程进入 `TIMED_WAITING`
+
+```
+- locked <0x000000076b59f0a0> (a java.lang.Class for cc.laop.jvm.ThreadTest)
+```
+
+第59行表示线程调用wait()方法，进入等待状态， `WAITING`
+
+```
+- waiting on <0x000000076b308ee0> (a java.lang.ref.ReferenceQueue$Lock)
+```
+
+
+
+### 使用线程堆栈分析具体问题
+
+#### 死锁分析
+
+当两个或两个以上的线程因为环路的锁依赖而形成的锁环，就会发生死锁；
+
+如下代码，简单模拟了死锁的场景，代码运行之后，线程1持有dl1的锁同时等待获取dl2的锁，线程2持有dl2的锁同时等待获取dl1的锁；
+
+```java
+public class DeadLockTest {
+
+    public synchronized void test(DeadLockTest dl) {
+        try {
+            Thread.sleep(10000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        dl.print();
+    }
+
+    public synchronized void print() {
+    }
+
+    public static void main(String[] args) throws IOException {
+        DeadLockTest dl1 = new DeadLockTest();
+        DeadLockTest dl2 = new DeadLockTest();
+        
+        new Thread(() -> dl1.test(dl2)).start();
+        new Thread(() -> dl2.test(dl1)).start();
+        
+        System.in.read();
+    }
+
+}
+```
+
+线程堆栈中会提示死锁发生的场景，一下是截取的部分堆栈信息
+
+```
+Found one Java-level deadlock:
+=============================
+"Thread-1":
+  waiting to lock monitor 0x000000000336b848 (object 0x000000076b5a8bf8, a cc.laop.java.concurrent.DeadLockTest),
+  which is held by "Thread-0"
+"Thread-0":
+  waiting to lock monitor 0x000000000336b9a8 (object 0x000000076b5a8c08, a cc.laop.java.concurrent.DeadLockTest),
+  which is held by "Thread-1"
+
+Java stack information for the threads listed above:
+===================================================
+"Thread-1":
+        at cc.laop.java.concurrent.DeadLockTest.print(DeadLockTest.java:22)
+        - waiting to lock <0x000000076b5a8bf8> (a cc.laop.java.concurrent.DeadLockTest)
+        at cc.laop.java.concurrent.DeadLockTest.test(DeadLockTest.java:18)
+        - locked <0x000000076b5a8c08> (a cc.laop.java.concurrent.DeadLockTest)
+        at cc.laop.java.concurrent.DeadLockTest.lambda$main$1(DeadLockTest.java:29)
+        at cc.laop.java.concurrent.DeadLockTest$$Lambda$2/1747585824.run(Unknown Source)
+        at java.lang.Thread.run(Thread.java:748)
+"Thread-0":
+        at cc.laop.java.concurrent.DeadLockTest.print(DeadLockTest.java:22)
+        - waiting to lock <0x000000076b5a8c08> (a cc.laop.java.concurrent.DeadLockTest)
+        at cc.laop.java.concurrent.DeadLockTest.test(DeadLockTest.java:18)
+        - locked <0x000000076b5a8bf8> (a cc.laop.java.concurrent.DeadLockTest)
+        at cc.laop.java.concurrent.DeadLockTest.lambda$main$0(DeadLockTest.java:28)
+        at cc.laop.java.concurrent.DeadLockTest$$Lambda$1/1078694789.run(Unknown Source)
+        at java.lang.Thread.run(Thread.java:748)
+
+Found 1 deadlock.
+
+```
+
+#### Java代码导致的CPU占用过高
+
+对于CPU占用过高的问题，首先需要查占用CPU高的线程ID；linux里面使用 `top -Hp <jvm pid>` ，根据线程ID查询堆栈中的线程信息，对照源码判断问题原因；（通过top查询的线程ID需要转换为16进制）
+
+1、查询线程ID
+
+2、线程ID转换为16进制
+
+```bash
+# 转10进制
+printf '%d' <number> 	
+# 转16进制
+printf '%x' <number>
+# 转八进制
+printf '%o' <number>
+```
+
+3、详细线程堆栈，匹配线程信息中的 `nid` 属性；
+
+4、对比源码确认问题原因；
+
+#### 死循环分析
+
+死循环一般会产生CPU的高占用；问题分析与上面的相同；
+
+#### 性能分析
+
+参考：http://www.hollischuang.com/archives/110
 
 ## jinfo
 
-
-
-
+jinfo用于输出jvm参数；
 
 ## jvisualvm
 
+jvisualvm 是 Oracle JDK自带的JVM状态分析工具；可实时查看JVM参数、堆栈、CPU使用、内存使用、线程状态等信息；
