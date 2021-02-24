@@ -15,7 +15,7 @@ public void fun() {
         try {
             os.close();
         } catch(IOException e){
-            
+            // throw e;
         }
     }
 }
