@@ -72,55 +72,55 @@ tar xvf hadoop-2.10.1.tar.gz
    **hdfs-site.xml**
 
    ```xml
-   <!-- 副本数量 -->
-   <property>
-   	<name>dfs.replication</name>
-       <value>1</value>
-   </property>
-   <!-- namenode数据目录 -->
-   <property>
-       <name>dfs.namenode.name.dir</name>
-       <value>/home/hadoop/hadoop-2.10.1/namenode</value>
-   </property>
-   <!-- datanode数据目录 -->
-   <property>
-       <name>dfs.datanode.name.dir</name>
-       <value>/home/hadoop/hadoop-2.10.1/datanode</value>
-   </property>
-   <property>
-       <name>dfs.permissions</name>
-   	<value>false</value>
-   </property>
-   <!-- 开启web后台 -->
-   <property>
-       <name>dfs.webhdfs.enabled</name>
-       <value>true</value>
-   </property>
+       <!-- 副本数量 -->
+       <property>
+           <name>dfs.replication</name>
+           <value>1</value>
+       </property>
+       <!-- namenode数据目录 -->
+       <property>
+           <name>dfs.namenode.name.dir</name>
+           <value>/home/hadoop/hadoop-2.10.1/namenode</value>
+       </property>
+       <!-- datanode数据目录 -->
+       <property>
+           <name>dfs.datanode.name.dir</name>
+           <value>/home/hadoop/hadoop-2.10.1/datanode</value>
+       </property>
+       <property>
+           <name>dfs.permissions</name>
+           <value>false</value>
+       </property>
+       <!-- 开启web后台 -->
+       <property>
+           <name>dfs.webhdfs.enabled</name>
+           <value>true</value>
+       </property>
    
    ```
 
    **mapred-site.xml**
 
    ```xml
-   <!-- 任务调度框架，默认使用yarn -->
-   <property>
-   	<name>mapreduce.framework.name</name>
-       <value>yarn</value>
-   </property>
+       <!-- 任务调度框架，默认使用yarn -->
+       <property>
+           <name>mapreduce.framework.name</name>
+           <value>yarn</value>
+       </property>
    ```
 
    **yarn-site.xml**
 
    ```xml
-   <property>
-       <name>yarn.resourcemanager.hostname</name>
-       <value>172.18.0.11</value>
-   </property>
+       <property>
+           <name>yarn.resourcemanager.hostname</name>
+           <value>172.18.0.11</value>
+       </property>
    
-   <property>
-       <name>yarn.resourcemanager.webapp.address</name>
-       <value>172.18.0.11:8088</value>
-   </property>
+       <property>
+           <name>yarn.resourcemanager.webapp.address</name>
+           <value>172.18.0.11:8088</value>
+       </property>
    
    ```
 
