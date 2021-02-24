@@ -9,7 +9,7 @@
 mysqldump -uroot -p --opt -R --all-database > mysql_bak.sql
 
 # 备份指定数据库
-mysqldump -uroot -p --opt -R --databases [database1,database2] > mysql_bak.sql
+mysqldump -uroot -p --opt -R --databases [database1 database2] > mysql_bak.sql
 
 # 还原数据库
 mysql -uroot -p -e "source mysql_dak.sql;"
