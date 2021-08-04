@@ -8,6 +8,78 @@
 
 非线程安全；数组采用 1/2 倍扩展；实现 **Fail-Fast 机制**
 
+#### 扩容
+
+默认情况下，
+
+初始容量为 0
+
+首次执行插入时进行扩容，默认为容量为 10
+
+当 size + 1: （10， Intager.MAX_VALUE - 8），进行 0.5 倍扩容（取整）
+
+当 size + 1: （Intager.MAX_VALUE - 8, Intager.MAX_VALUE），容量固定为：Intager.MAX_VALUE
+
+当 size + 1 < 0：数组长度溢出，抛出oom；
+
+```java
+	public boolean add(E e) {
+        // 插入之前先判断数组容量是否满足
+        ensureCapacityInternal(size + 1);  // Increments modCount!!
+        elementData[size++] = e;
+        return true;
+    }
+
+	private void ensureCapacityInternal(int minCapacity) {
+        ensureExplicitCapacity(calculateCapacity(elementData, minCapacity));
+    }
+	
+	private static int calculateCapacity(Object[] elementData, int minCapacity) {
+        // elementData 列表内部存储数据的数组
+        // DEFAULTCAPACITY_EMPTY_ELEMENTDATA 为默认构造创建的空数组
+        if (elementData == DEFAULTCAPACITY_EMPTY_ELEMENTDATA) {
+            // DEFAULT_CAPACITY：默认容量10
+            return Math.max(DEFAULT_CAPACITY, minCapacity);
+        }
+        return minCapacity;
+    }
+
+	private void ensureExplicitCapacity(int minCapacity) {
+        modCount++;
+        // overflow-conscious code
+        // minCapacity 等于 DEFAULT_CAPACITY(10) 或者 size + 1
+        // 当 minCapacity 大于当前数组长度，则进行扩容；
+        if (minCapacity - elementData.length > 0)
+            grow(minCapacity);
+    }
+
+	private void grow(int minCapacity) {
+        // overflow-conscious code
+        int oldCapacity = elementData.length;
+        // 0.5倍（取整）扩容；
+        int newCapacity = oldCapacity + (oldCapacity >> 1);
+        if (newCapacity - minCapacity < 0)
+            newCapacity = minCapacity;
+        // MAX_ARRAY_SIZE = Integer.MAX_VALUE - 8
+        // 部分虚拟机对数组保留了头字，直接分配最大数组可能会导致oom
+        if (newCapacity - MAX_ARRAY_SIZE > 0)
+            newCapacity = hugeCapacity(minCapacity);
+        // minCapacity is usually close to size, so this is a win:
+        elementData = Arrays.copyOf(elementData, newCapacity);
+    }
+
+	private static int hugeCapacity(int minCapacity) {
+        // 小于0, 说明Integer溢出了，抛出oom
+        if (minCapacity < 0) // overflow
+            throw new OutOfMemoryError();
+        return (minCapacity > MAX_ARRAY_SIZE) ?
+            Integer.MAX_VALUE :
+            MAX_ARRAY_SIZE;
+    }
+```
+
+
+
 ### Vector
 
 线程安全，通过使用 **Synchronzied** 对容器加锁，效率低，已经极少使用；
@@ -20,7 +92,7 @@ Java6之后，建议使用 **Deque**
 
 ### LinkedList
 
-链表，内部数据结构为链表结构，非线程安全；实现 **Fail-Fast 机制**
+链表，内部数据结构为链表结构，容量为：Integer.MAX_VALUE，非线程安全；实现 **Fail-Fast 机制**
 
 ### CopyOnWriteArrayList
 
