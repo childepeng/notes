@@ -280,7 +280,7 @@ monitor的定义与初始化是由C语言实现的；具体实现有时间再写
 > 3. jvm获取充当临界区锁的java对象
 > 4. 根据java对象对象头中的重量级锁 ptr_to_heavyweight_monitor指针找到objectMonitor
 > 5. 将当前线程包装成一个ObjectWaiter对象
-> 6. 将ObjectWaiter假如_cxq(ContentionList)队列头部
+> 6. 将ObjectWaiter加入_cxq(ContentionList)队列头部
 > 7. _count++
 > 8. 如果owner是其他线程说明当前monitor被占据，则当前线程阻塞。如果没有被其他线程占据，则将owner设置为当前线程，将线程从等待队列中删除，count--。
 > 9. 当前线程获取monitor锁，如果条件变量不满足，则将线程放入WaitSet中。当条件满足之后被唤醒，把线程从WaitSet转移到EntrySet中。
